@@ -29,16 +29,12 @@ import { useToast } from '@/hooks/use-toast'
 import { createCategory } from '@/actions/category'
 
 const formSchema = z.object({
-   name: z.string().min(2, {
-      message: 'Name must be at least 2 characters.',
-   }),
-   description: z.string().min(10, {
-      message: 'Description must be at least 10 characters.',
-   }),
-   categoryId: z.number(),
-   price: z.number().positive(),
-   stock: z.number().int().nonnegative(),
-   // Remove sku from the schema
+   name: z.string().min(1, 'Name is required'),
+   description: z.string(),
+   categoryId: z.string(),
+   newCategory: z.string().optional(),
+   price: z.number().min(0),
+   stock: z.number().int().min(0),
 })
 
 type AddProductFormProps = {
@@ -46,23 +42,60 @@ type AddProductFormProps = {
 }
 
 export default function AddProductForm({ categories }: AddProductFormProps) {
+   const [showNewCategoryInput, setShowNewCategoryInput] = useState(false)
+   const [isSubmitting, setIsSubmitting] = useState(false)
+   const { toast } = useToast()
+
    const form = useForm<z.infer<typeof formSchema>>({
       resolver: zodResolver(formSchema),
       defaultValues: {
          name: '',
          description: '',
-         categoryId: 0,
+         categoryId: '',
+         newCategory: '',
          price: 0,
          stock: 0,
       },
    })
 
    async function onSubmit(values: z.infer<typeof formSchema>) {
-      const response = await addProduct(values)
-      if (response.success) {
-         // Handle successful submission (e.g., show a success message, redirect)
+      setIsSubmitting(true)
+      let categoryId = values.categoryId
+
+      if (values.categoryId === 'new' && values.newCategory) {
+         const newCategoryResult = await createCategory(values.newCategory)
+         if ('id' in newCategoryResult) {
+            categoryId = newCategoryResult.id.toString()
+         } else {
+            throw new Error(newCategoryResult.error)
+         }
+      }
+
+      const productData: ExtendedProductFormData = {
+         name: values.name,
+         description: values.description,
+         categoryId: parseInt(categoryId),
+         price: values.price,
+         stock: values.stock,
+         newCategory: values.newCategory,
+      }
+
+      const result = await addProduct(productData)
+      console.log(result)
+      setIsSubmitting(false)
+
+      if (result.success) {
+         toast({
+            title: 'Product added successfully',
+            description: `${result.data?.name} has been added to the inventory.`,
+         })
+         form.reset()
       } else {
-         // Handle error (e.g., show an error message)
+         toast({
+            title: 'Error',
+            description: result.error || 'An unknown error occurred',
+            variant: 'destructive',
+         })
       }
    }
 
@@ -105,10 +138,11 @@ export default function AddProductForm({ categories }: AddProductFormProps) {
                   <FormItem>
                      <FormLabel>Category</FormLabel>
                      <Select
-                        onValueChange={(value) =>
-                           field.onChange(parseInt(value))
-                        }
-                        value={field.value.toString()}
+                        onValueChange={(value) => {
+                           field.onChange(value)
+                           setShowNewCategoryInput(value === 'new')
+                        }}
+                        defaultValue={field.value}
                      >
                         <FormControl>
                            <SelectTrigger>
@@ -124,12 +158,28 @@ export default function AddProductForm({ categories }: AddProductFormProps) {
                                  {category.name}
                               </SelectItem>
                            ))}
+                           <SelectItem value="new">Add New Category</SelectItem>
                         </SelectContent>
                      </Select>
                      <FormMessage />
                   </FormItem>
                )}
             />
+            {showNewCategoryInput && (
+               <FormField
+                  control={form.control}
+                  name="newCategory"
+                  render={({ field }) => (
+                     <FormItem>
+                        <FormLabel>New Category</FormLabel>
+                        <FormControl>
+                           <Input placeholder="Enter new category" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                     </FormItem>
+                  )}
+               />
+            )}
             <FormField
                control={form.control}
                name="price"
@@ -169,7 +219,9 @@ export default function AddProductForm({ categories }: AddProductFormProps) {
                   </FormItem>
                )}
             />
-            <Button type="submit">Submit</Button>
+            <Button type="submit" disabled={isSubmitting}>
+               {isSubmitting ? 'Submitting...' : 'Submit'}
+            </Button>
          </form>
       </Form>
    )

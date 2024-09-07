@@ -1,81 +1,14 @@
-Data model:
-
-Product:
-
--  id
--  name
--  description
--  category
--  price
--  stock
--  images (Image[])
--  coverImageIndex
--  sku
--  createdAt
--  updatedAt
-
-Image:
-
--  id
--  url
--  productId
--  createdAt
--  updatedAt
-
-Category:
-
--  id
--  name
--  description
--  createdAt
--  updatedAt
-
-Customer:
-
--  id
--  name
--  email
--  phone
--  address
--  city
--  postalCode
--  country
--  createdAt
--  updatedAt
-
-User:
-
--  id
--  username (email)
--  password_hash
--  sessions (Session[])
--  role (admin, customer)
--  createdAt
--  updatedAt
-
-Session:
-
--  id
--  userId
--  expiresAt
--  user (User)
-
-Order: (made of multiple OrderItems)
-
--  id
--  customerId
--  orderItems (OrderItem[])
--  totalPrice
--  status
--  createdAt
--  updatedAt
-
-OrderItem:
-
--  id
--  orderId
--  productId
--  quantity
--  price
--  createdAt
--  updatedAt
+-  [] Upload images
+   -  [] Import image uploading from fofloo
+   -  [] Setup vercel blob
+   -  [] Implement coverImageIndex
+-  [] Add Product Preview to form
+-  [] add discount to product
+-  [] Create category form and /admin link to form
+-  [] Add category image and description to category form
+-  [] view products on /store
+-  [] product overlay and /product/[id] view
+-  [] Add product to cart
+-  [] view cart
+-  [] Customer signup, signin, login, verification
+-  [] Signed in customer can Checkout
