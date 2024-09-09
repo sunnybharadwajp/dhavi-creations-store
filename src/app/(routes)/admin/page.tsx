@@ -7,7 +7,7 @@ export default function Admin() {
          <ul>
             <li>
                <Button variant="link">
-                  <Link href="/admin/add-item">Add a new Item</Link>
+                  <Link href="/admin/create-product">Add a new Item</Link>
                </Button>
             </li>
          </ul>

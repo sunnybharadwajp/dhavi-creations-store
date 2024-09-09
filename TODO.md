@@ -2,7 +2,7 @@
    -  [] Import image uploading from fofloo
    -  [] Setup vercel blob
    -  [] Implement coverImageIndex
--  [] Add Product Preview to form
+-  [] list products on admin page
 -  [] add discount to product
 -  [] Create category form and /admin link to form
 -  [] Add category image and description to category form
