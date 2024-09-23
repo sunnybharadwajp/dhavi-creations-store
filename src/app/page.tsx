@@ -19,6 +19,9 @@ export default function Home() {
               width={400}
               height={400}
             />
+            <div className="text-2xl mt-6 text-center px-4">
+              Store launches October 23, 2024. Bookmark us!
+            </div>
           </div>
         </div>
       </div>
